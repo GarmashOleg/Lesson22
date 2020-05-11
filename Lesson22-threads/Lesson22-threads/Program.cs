@@ -6,45 +6,33 @@ namespace Lesson22_threads
     public class Program
     {
         readonly object locker = new object();
-        bool isDone;
 
         public static void Main(string[] args)
         {
             var testExample = new Program();
 
-            Thread.CurrentThread.Name = "Main";
+            var threads = new Thread[10];
+            for (int i = 0; i < threads.Length; i++)
+            {
+                threads[i] = new Thread(testExample.PrintNumbers);
+                threads[i].Name = "Tread " + i;
+            }
 
-
-            //second thread
-            var secondThread = new Thread(testExample.PrintNumbers);
-            secondThread.Name = "second thread";
-            secondThread.Start();
-
-            var threadThread = new Thread(testExample.PrintNumbers);
-            threadThread.Name = "third thread";
-            threadThread.Start();
-
-            testExample.PrintNumbers();
+            foreach (var thread in threads)
+            {
+                thread.Start();
+            }
         }
 
         public void PrintNumbers()
         {
-            //Console.WriteLine($"Current thread: " + Thread.CurrentThread.Name);
-
             lock (locker)
             {
-
-
-                for (int i = 0; i < 10; i++)
+                for (int i = 0; i < 15; i++)
                 {
-                    if (!isDone)
-                    {
-                        Console.WriteLine($"Value {i} was created by {Thread.CurrentThread.Name}");
-                        Console.WriteLine($"Value {i} was finished {Thread.CurrentThread.Name}");
-                        isDone = false;
-                    }
-
+                    Console.WriteLine($"Value {i} was created by {Thread.CurrentThread.Name}");
                 }
+                Console.WriteLine("===================================================");
             }
         }
     }
