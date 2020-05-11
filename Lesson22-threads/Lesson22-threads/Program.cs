@@ -26,18 +26,18 @@ namespace Lesson22_threads
 
         public class Shop
         {
-            readonly Semaphore semaphore = new Semaphore(1, 1);
+            readonly Mutex mutex = new Mutex();
 
             public void EnterShop(object param)
             {
                 var threadName = (string)param;
-                semaphore.WaitOne();
+                mutex.WaitOne();
 
                 Console.WriteLine($"The thread entered the shop: {threadName}");
                 Thread.Sleep(1000);
                 Console.WriteLine($"The thread {threadName} left the shop");
 
-                semaphore.Release();
+                mutex.ReleaseMutex();
             }
         }
     }
