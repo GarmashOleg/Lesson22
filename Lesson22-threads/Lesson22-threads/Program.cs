@@ -5,34 +5,38 @@ namespace Lesson22_threads
 {
     public class Program
     {
-        readonly object locker = new object();
+        
 
         public static void Main(string[] args)
         {
-            var testExample = new Program();
+            var shop = new Shop();
 
-            var threads = new Thread[10];
-            for (int i = 0; i < threads.Length; i++)
+            var customers = new Thread[15];
+            for(int i=0; i< customers.Length; i++)
             {
-                threads[i] = new Thread(testExample.PrintNumbers);
-                threads[i].Name = "Tread " + i;
+                customers[i] = new Thread(shop.EnterShop);
+                customers[i].Name = $"Thread {i}";
             }
 
-            foreach (var thread in threads)
+            foreach(var thread in customers)
             {
                 thread.Start();
             }
         }
 
-        public void PrintNumbers()
+        public class Shop
         {
-            lock (locker)
+            readonly Semaphore semaphore = new Semaphore(3, 3);
+
+            public void EnterShop()
             {
-                for (int i = 0; i < 15; i++)
-                {
-                    Console.WriteLine($"Value {i} was created by {Thread.CurrentThread.Name}");
-                }
-                Console.WriteLine("===================================================");
+                semaphore.WaitOne();
+
+                Console.WriteLine($"The thread entered the shop: {Thread.CurrentThread.Name}");
+                Thread.Sleep(1000);
+                Console.WriteLine($"The thread {Thread.CurrentThread.Name} left the shop");
+
+                semaphore.Release();
             }
         }
     }
