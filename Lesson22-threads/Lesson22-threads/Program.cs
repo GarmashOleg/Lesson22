@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace Lesson22_threads
 {
@@ -9,35 +11,47 @@ namespace Lesson22_threads
 
         public static void Main(string[] args)
         {
-            var shop = new Shop();
-
-            var customers = new Thread[15];
-            for(int i=0; i< customers.Length; i++)
+            Task<string> task = Task.Factory.StartNew<string>(() =>
             {
-                customers[i] = new Thread(shop.EnterShop);
-                //customers[i].Name = $"Thread {i}";
-            }
+                using (var wc = new WebClient())
+                {
+                    return wc.DownloadString("http://in4.com.ua/");
+                }
+            });
 
-            for(int i =0; i < customers.Length; i++)
+
+            var secondRun = Task.Run<string>(() =>
             {
-                customers[i].Start($"Thread {i}");
-            }
+                using (var wc = new WebClient())
+                {
+                    return wc.DownloadString("http://in4.com.ua/");
+                }
+            });
+
+
+            var thirdRun = new Task<string>(() =>
+            {
+                using (var wc = new WebClient())
+                {
+                    return wc.DownloadString("http://in4.com.ua/");
+                }
+            });
+            thirdRun.RunSynchronously();
+
+
+            //Console.WriteLine(task.Result);
+            //Console.WriteLine(secondRun);
+            Console.WriteLine(thirdRun);
+
+
+            PrintNumbers();
         }
 
-        public class Shop
+        public static void PrintNumbers()
         {
-            readonly Mutex mutex = new Mutex();
-
-            public void EnterShop(object param)
+            for (var i =0; i<100; i++)
             {
-                var threadName = (string)param;
-                mutex.WaitOne();
-
-                Console.WriteLine($"The thread entered the shop: {threadName}");
-                Thread.Sleep(1000);
-                Console.WriteLine($"The thread {threadName} left the shop");
-
-                mutex.ReleaseMutex();
+                Console.WriteLine(i);
             }
         }
     }
