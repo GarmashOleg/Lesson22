@@ -15,26 +15,27 @@ namespace Lesson22_threads
             for(int i=0; i< customers.Length; i++)
             {
                 customers[i] = new Thread(shop.EnterShop);
-                customers[i].Name = $"Thread {i}";
+                //customers[i].Name = $"Thread {i}";
             }
 
-            foreach(var thread in customers)
+            for(int i =0; i < customers.Length; i++)
             {
-                thread.Start();
+                customers[i].Start($"Thread {i}");
             }
         }
 
         public class Shop
         {
-            readonly Semaphore semaphore = new Semaphore(3, 3);
+            readonly Semaphore semaphore = new Semaphore(1, 1);
 
-            public void EnterShop()
+            public void EnterShop(object param)
             {
+                var threadName = (string)param;
                 semaphore.WaitOne();
 
-                Console.WriteLine($"The thread entered the shop: {Thread.CurrentThread.Name}");
+                Console.WriteLine($"The thread entered the shop: {threadName}");
                 Thread.Sleep(1000);
-                Console.WriteLine($"The thread {Thread.CurrentThread.Name} left the shop");
+                Console.WriteLine($"The thread {threadName} left the shop");
 
                 semaphore.Release();
             }
