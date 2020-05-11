@@ -7,52 +7,28 @@ namespace Lesson22_threads
 {
     public class Program
     {
-        
+
 
         public static void Main(string[] args)
         {
-            Task<string> task = Task.Factory.StartNew<string>(() =>
+            Thread.CurrentThread.Name = "Main";
+
+            Console.WriteLine("Simple array");
+            for (int i=0; i<10; i++)
             {
-                using (var wc = new WebClient())
-                {
-                    return wc.DownloadString("http://in4.com.ua/");
-                }
-            });
-
-
-            var secondRun = Task.Run<string>(() =>
-            {
-                using (var wc = new WebClient())
-                {
-                    return wc.DownloadString("http://in4.com.ua/");
-                }
-            });
-
-
-            var thirdRun = new Task<string>(() =>
-            {
-                using (var wc = new WebClient())
-                {
-                    return wc.DownloadString("http://in4.com.ua/");
-                }
-            });
-            thirdRun.RunSynchronously();
-
-
-            //Console.WriteLine(task.Result);
-            //Console.WriteLine(secondRun);
-            Console.WriteLine(thirdRun);
-
-
-            PrintNumbers();
-        }
-
-        public static void PrintNumbers()
-        {
-            for (var i =0; i<100; i++)
-            {
-                Console.WriteLine(i);
+                Console.WriteLine($"Index {i} was printed by {Thread.CurrentThread.Name}");
+                Thread.Sleep(500);
             }
+
+            Console.WriteLine("---------------------------------------------------------------");
+
+            Console.WriteLine("Parallel processing");
+
+            Parallel.For(0, 10, count =>
+            {
+                Console.WriteLine($"Index {count} was printed by {Thread.CurrentThread.ManagedThreadId}");
+                Thread.Sleep(500);
+            });
         }
     }
 }
