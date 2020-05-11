@@ -7,28 +7,38 @@ namespace Lesson22_threads
 {
     public class Program
     {
-
-
         public static void Main(string[] args)
         {
-            Thread.CurrentThread.Name = "Main";
+            CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
+            CancellationToken token = cancellationTokenSource.Token;
 
-            Console.WriteLine("Simple array");
-            for (int i=0; i<10; i++)
+            var task = new Task(() =>
             {
-                Console.WriteLine($"Index {i} was printed by {Thread.CurrentThread.Name}");
-                Thread.Sleep(500);
+                for (int i = 0; ; i++)
+                {
+                    if (token.IsCancellationRequested)
+                    {
+                        return;
+                    }
+
+                    Console.WriteLine($"Index {i}");
+                    Thread.Sleep(500);
+                }
+            });
+
+            task.Start();
+
+            Console.WriteLine("for stop press K");
+            var key = Console.ReadLine();
+
+            if (key.ToLower() == "k")
+            {
+                cancellationTokenSource.Cancel();
+                return;
             }
 
-            Console.WriteLine("---------------------------------------------------------------");
 
-            Console.WriteLine("Parallel processing");
-
-            Parallel.For(0, 10, count =>
-            {
-                Console.WriteLine($"Index {count} was printed by {Thread.CurrentThread.ManagedThreadId}");
-                Thread.Sleep(500);
-            });
+            Console.Read();
         }
     }
 }
